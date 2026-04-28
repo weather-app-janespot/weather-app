@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import axios from "axios"
 import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
@@ -23,15 +23,17 @@ export default function App() {
   // Temperature unit — passed down to all components that display temperatures
   const [unit, setUnit] = useState<"metric" | "imperial">("metric")
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+  // Tracks the last searched city so we can re-fetch when the unit changes
+  const lastCityRef = useRef<string | null>(null)
 
   // Prepends a city to the recent searches list, deduplicating case-insensitively
   // and capping the list at MAX_RECENT entries.
-  const addRecent = (city: string) => {
+  const addRecent = useCallback((city: string) => {
     setRecentSearches((prev) => {
       const filtered = prev.filter((c) => c.toLowerCase() !== city.toLowerCase())
       return [city, ...filtered].slice(0, MAX_RECENT)
     })
-  }
+  }, [])
 
   // Fetches current weather for the given city from the backend proxy.
   // useCallback memoises the function so it only re-creates when `unit` changes,
@@ -47,6 +49,7 @@ export default function App() {
       
       setWeather(response.data)
       addRecent(city)
+      lastCityRef.current = city
     } catch (err: any) {
       // Use the error message from the server if available, otherwise show a generic fallback
       const message = err.response?.data?.error || "Could not fetch weather data. Please try again."
@@ -60,6 +63,13 @@ export default function App() {
 
   // Toggles between Celsius (metric) and Fahrenheit (imperial)
   const toggleUnit = () => setUnit((p) => (p === "metric" ? "imperial" : "metric"))
+
+  // Re-fetch weather with the new unit whenever it changes, if a city has been searched
+  useEffect(() => {
+    if (lastCityRef.current) {
+      fetchWeather(lastCityRef.current)
+    }
+  }, [unit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

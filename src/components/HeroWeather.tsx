@@ -48,7 +48,8 @@ export function HeroWeather({ weather, unit }: HeroWeatherProps) {
               <p className="text-sm text-muted-foreground">{dateStr} &middot; {timeStr}</p>
               {/* Coordinates for precision — shown in a subtle style */}
               <p className="text-xs text-muted-foreground/60">
-                {weather.coord.lat.toFixed(2)}°N, {weather.coord.lon.toFixed(2)}°E
+                {Math.abs(weather.coord.lat).toFixed(2)}°{weather.coord.lat >= 0 ? "N" : "S"},{" "}
+                {Math.abs(weather.coord.lon).toFixed(2)}°{weather.coord.lon >= 0 ? "E" : "W"}
               </p>
             </div>
 

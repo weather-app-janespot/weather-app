@@ -1,7 +1,7 @@
 import React from "react"
 import {
   Wind, Droplets, Gauge, Eye, Thermometer, Cloud,
-  Sunrise, Sunset, Navigation, ArrowUpDown,
+  Sunrise, Sunset, Navigation, ArrowUpDown, CloudRain,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -135,6 +135,16 @@ export function WeatherDetails({ weather, unit }: WeatherDetailsProps) {
           value={`${weather.clouds.all}`}
           suffix="%"
         />
+        {/* Rain card — only rendered when precipitation data is present */}
+        {weather.rain && (weather.rain["1h"] ?? weather.rain["3h"]) !== undefined && (
+          <StatCard
+            icon={<CloudRain className="h-4 w-4 text-blue-400" />}
+            label="Rainfall"
+            value={`${weather.rain["1h"] ?? weather.rain["3h"]}`}
+            suffix="mm"
+            detail={weather.rain["1h"] !== undefined ? "last 1h" : "last 3h"}
+          />
+        )}
         <StatCard
           icon={<Navigation className="h-4 w-4 text-teal-400" />}
           label="Wind Direction"

@@ -69,4 +69,10 @@ export interface WeatherData {
 
   // Shift in seconds from UTC for the city's timezone
   timezone: number
+
+  // Precipitation volume — only present when it has rained
+  rain?: {
+    "1h"?: number  // mm in the last hour
+    "3h"?: number  // mm in the last 3 hours
+  }
 }
