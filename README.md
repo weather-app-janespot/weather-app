@@ -1,70 +1,91 @@
-# Getting Started with Create React App
+# WeatherNow — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time weather app built with React, Vite, TypeScript, Tailwind CSS, and shadcn/ui. Displays current conditions for any city worldwide via a proxied OpenWeatherMap API.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Live weather search for any city
+- Hero card with temperature, condition, high/low, feels like, wind, and humidity
+- Daylight progress bar with sunrise/sunset times and total daylight duration
+- Detail grid: wind speed & direction, wind gust, humidity, pressure, visibility, feels like, cloud cover
+- °C / °F unit toggle
+- Recent searches (last 6)
+- Popular city shortcuts on the empty state
+- Loading skeleton while fetching
+- Sticky navbar and footer
+- Fully responsive layout
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
+- [Vite](https://vitejs.dev) — build tool
+- [Tailwind CSS v3](https://tailwindcss.com)
+- [shadcn/ui](https://ui.shadcn.com) — Card, Button, Input, Badge, Skeleton, Tooltip, Separator
+- [lucide-react](https://lucide.dev) — icons
+- [Axios](https://axios-http.com) — HTTP client
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js 18+
+- The [weather-server](../weather-server) running locally or deployed
 
-### `npm run build`
+### Install & Run
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm install
+npm run dev
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+App runs at `http://localhost:5173`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Environment Variables
 
-### `npm run eject`
+Create a `.env` file in this directory:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+VITE_API_URL=http://localhost:5000
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+For production, set `VITE_API_URL` to your deployed server URL (e.g. `https://your-weather-server.vercel.app`).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Project Structure
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+src/
+├── components/
+│   ├── ui/                  # shadcn/ui primitives
+│   ├── Navbar.tsx           # Sticky nav with search and unit toggle
+│   ├── HeroWeather.tsx      # Main weather card
+│   ├── WeatherDetails.tsx   # Daylight bar + stat grid
+│   ├── RecentSearches.tsx   # Recent search chips
+│   ├── EmptyState.tsx       # Welcome screen with popular cities
+│   ├── LoadingSkeleton.tsx  # Skeleton loader
+│   └── Footer.tsx
+├── lib/
+│   └── utils.ts             # cn() helper (clsx + tailwind-merge)
+├── types/
+│   └── weather.ts           # WeatherData interface
+├── App.tsx                  # Root component, state management
+├── main.tsx                 # Entry point
+└── index.css                # Tailwind directives + animations
+```
 
-## Learn More
+## Scripts
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Command           | Description                        |
+| ----------------- | ---------------------------------- |
+| `npm run dev`     | Start dev server at localhost:5173 |
+| `npm run build`   | Type-check and build to `/dist`    |
+| `npm run preview` | Preview production build locally   |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Deployment
 
-### Code Splitting
+Build the app and deploy the `/dist` folder to Vercel, Netlify, or any static host.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm run build
+```
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Set `VITE_API_URL` as an environment variable in your hosting dashboard before building, pointing to your deployed server.
