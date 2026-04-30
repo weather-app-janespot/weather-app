@@ -8,6 +8,7 @@ import { RecentSearches } from "@/components/RecentSearches"
 import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
 import { WeatherChat } from "@/components/WeatherChat"
+import { getWeatherTheme, applyWeatherTheme, type WeatherTheme } from "@/lib/weatherTheme"
 import type { WeatherData } from "@/types/weather"
 
 // Backend API URL — falls back to local dev server if env var is not set.
@@ -21,10 +22,9 @@ export default function App() {
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Temperature unit — passed down to all components that display temperatures
   const [unit, setUnit] = useState<"metric" | "imperial">("metric")
   const [recentSearches, setRecentSearches] = useState<string[]>([])
-  // Tracks the last searched city so we can re-fetch when the unit changes
+  const [theme, setTheme] = useState<WeatherTheme | null>(null)
   const lastCityRef = useRef<string | null>(null)
 
   // Prepends a city to the recent searches list, deduplicating case-insensitively
@@ -51,6 +51,14 @@ export default function App() {
       setWeather(response.data)
       addRecent(city)
       lastCityRef.current = city
+
+      const t = getWeatherTheme(
+        response.data.weather[0].id,
+        response.data.sys.sunrise,
+        response.data.sys.sunset
+      )
+      applyWeatherTheme(t)
+      setTheme(t)
     } catch (err: any) {
       // Use the error message from the server if available, otherwise show a generic fallback
       const message = err.response?.data?.error || "Could not fetch weather data. Please try again."
@@ -73,7 +81,10 @@ export default function App() {
   }, [unit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div
+      className="min-h-screen flex flex-col transition-all duration-1000"
+      style={{ background: theme?.gradient ?? "linear-gradient(to bottom, #0a1628, #0f2040, #162850)" }}
+    >
       <Navbar onSearch={fetchWeather} loading={loading} unit={unit} onToggleUnit={toggleUnit} />
 
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

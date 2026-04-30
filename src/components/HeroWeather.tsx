@@ -27,8 +27,7 @@ export function HeroWeather({ weather, unit }: HeroWeatherProps) {
   const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 
   return (
-    // Gradient card — primary tint on the left fades into the base card colour
-    <Card className="overflow-hidden border-0 bg-gradient-to-br from-primary/20 via-card to-card">
+    <Card className="overflow-hidden border shadow-lg shadow-black/30">
       <CardContent className="p-0">
         {/* Two-column layout on md+: info on the left, weather icon on the right */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-0">
@@ -97,7 +96,7 @@ export function HeroWeather({ weather, unit }: HeroWeatherProps) {
           </div>
 
           {/* Right column: large weather icon — hidden on small screens */}
-          <div className="hidden md:flex flex-col items-center justify-center px-8 bg-gradient-to-b from-primary/5 to-transparent">
+          <div className="hidden md:flex flex-col items-center justify-center px-8">
             <img
               src={getIconUrl(weather.weather[0].icon)}
               alt={weather.weather[0].description}
