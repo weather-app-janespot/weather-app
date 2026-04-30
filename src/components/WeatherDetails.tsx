@@ -43,10 +43,10 @@ export function WeatherDetails({ weather, unit }: WeatherDetailsProps) {
   return (
     <div className="space-y-6">
 
-      {/* Daylight card — shows sunrise, sunset, total daylight, and sun position */}
-      <Card>
+      {/* Daylight card — orange tint to match the sun theme */}
+      <Card className="border border-orange-500/20 bg-gradient-to-br from-orange-500/10 via-card to-card">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <CardTitle className="text-sm font-medium text-orange-400 flex items-center gap-2">
             <Sunrise className="h-4 w-4 text-orange-400" />
             Daylight
           </CardTitle>
@@ -86,21 +86,24 @@ export function WeatherDetails({ weather, unit }: WeatherDetailsProps) {
       </Card>
 
       {/* Stats grid — responsive 2/3/4 column layout */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground px-0.5">Conditions</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 items-stretch">
         <StatCard
           icon={<Wind className="h-4 w-4 text-cyan-400" />}
           label="Wind Speed"
           value={`${weather.wind.speed}`}
           suffix={speedUnit}
           detail={weather.wind.deg !== undefined ? windDir(weather.wind.deg) : undefined}
+          accent="cyan"
         />
-        {/* Wind gust card — only rendered when gust data is present in the response */}
         {weather.wind.gust && (
           <StatCard
             icon={<ArrowUpDown className="h-4 w-4 text-cyan-300" />}
             label="Wind Gust"
             value={`${weather.wind.gust}`}
             suffix={speedUnit}
+            accent="cyan"
           />
         )}
         <StatCard
@@ -109,33 +112,36 @@ export function WeatherDetails({ weather, unit }: WeatherDetailsProps) {
           value={`${weather.main.humidity}`}
           suffix="%"
           detail={humidityLevel(weather.main.humidity)}
+          accent="blue"
         />
         <StatCard
           icon={<Gauge className="h-4 w-4 text-violet-400" />}
           label="Pressure"
           value={`${weather.main.pressure}`}
           suffix="hPa"
+          accent="violet"
         />
-        {/* Visibility converted from metres to kilometres */}
         <StatCard
           icon={<Eye className="h-4 w-4 text-emerald-400" />}
           label="Visibility"
           value={`${(weather.visibility / 1000).toFixed(1)}`}
           suffix="km"
+          accent="emerald"
         />
         <StatCard
           icon={<Thermometer className="h-4 w-4 text-orange-400" />}
           label="Feels Like"
           value={`${Math.round(weather.main.feels_like)}°`}
           suffix={tempUnit}
+          accent="orange"
         />
         <StatCard
           icon={<Cloud className="h-4 w-4 text-slate-400" />}
           label="Cloud Cover"
           value={`${weather.clouds.all}`}
           suffix="%"
+          accent="slate"
         />
-        {/* Rain card — only rendered when precipitation data is present */}
         {weather.rain && (weather.rain["1h"] ?? weather.rain["3h"]) !== undefined && (
           <StatCard
             icon={<CloudRain className="h-4 w-4 text-blue-400" />}
@@ -143,6 +149,7 @@ export function WeatherDetails({ weather, unit }: WeatherDetailsProps) {
             value={`${weather.rain["1h"] ?? weather.rain["3h"]}`}
             suffix="mm"
             detail={weather.rain["1h"] !== undefined ? "last 1h" : "last 3h"}
+            accent="blue"
           />
         )}
         <StatCard
@@ -150,38 +157,46 @@ export function WeatherDetails({ weather, unit }: WeatherDetailsProps) {
           label="Wind Direction"
           value={weather.wind.deg !== undefined ? windDir(weather.wind.deg) : "N/A"}
           detail={weather.wind.deg !== undefined ? `${weather.wind.deg}°` : undefined}
+          accent="teal"
         />
+        </div>
       </div>
     </div>
   )
 }
 
-// Reusable stat card used in the detail grid.
-// Wraps content in a Tooltip that shows the full label on hover.
+const accentBorder: Record<string, string> = {
+  cyan:    "border-l-2 border-l-cyan-400/60",
+  blue:    "border-l-2 border-l-blue-400/60",
+  violet:  "border-l-2 border-l-violet-400/60",
+  emerald: "border-l-2 border-l-emerald-400/60",
+  orange:  "border-l-2 border-l-orange-400/60",
+  slate:   "border-l-2 border-l-slate-400/60",
+  teal:    "border-l-2 border-l-teal-400/60",
+}
+
 function StatCard({
-  icon, label, value, suffix, detail,
+  icon, label, value, suffix, detail, accent,
 }: {
   icon: React.ReactNode
   label: string
   value: string
-  suffix?: string   // unit label shown in a muted style after the value
-  detail?: string   // optional secondary line (e.g. compass direction, humidity level)
+  suffix?: string
+  detail?: string
+  accent?: string
 }) {
   return (
     <Tooltip content={label}>
-      <Card className="hover:bg-accent/50 transition-colors cursor-default">
+      <Card className={`h-full hover:bg-accent/50 transition-colors cursor-default ${accent ? accentBorder[accent] : ""}`}>
         <CardContent className="p-4 space-y-2">
-          {/* Icon + label row */}
           <div className="flex items-center gap-2 text-muted-foreground">
             {icon}
             <span className="text-[11px] uppercase tracking-wider font-medium">{label}</span>
           </div>
-          {/* Primary value with optional unit suffix */}
           <p className="text-xl font-semibold">
             {value}
             {suffix && <span className="text-sm font-normal text-muted-foreground ml-1">{suffix}</span>}
           </p>
-          {/* Optional detail line */}
           {detail && <p className="text-xs text-muted-foreground">{detail}</p>}
         </CardContent>
       </Card>

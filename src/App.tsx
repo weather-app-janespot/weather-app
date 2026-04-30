@@ -7,6 +7,7 @@ import { WeatherDetails } from "@/components/WeatherDetails"
 import { RecentSearches } from "@/components/RecentSearches"
 import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
+import { WeatherChat } from "@/components/WeatherChat"
 import type { WeatherData } from "@/types/weather"
 
 // Backend API URL — falls back to local dev server if env var is not set.
@@ -102,6 +103,9 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* Floating weather chat — only shown when weather data is available */}
+      {weather && <WeatherChat weather={weather} unit={unit} apiUrl={API_URL} />}
     </div>
   )
 }

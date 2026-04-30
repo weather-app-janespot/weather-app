@@ -1,19 +1,20 @@
 # WeatherNow — Frontend
 
-A real-time weather app built with React, Vite, TypeScript, Tailwind CSS, and shadcn/ui. Displays current conditions for any city worldwide via a proxied OpenWeatherMap API.
+A real-time weather app built with React, Vite, TypeScript, Tailwind CSS, and shadcn/ui. Displays current conditions for any city worldwide via a proxied OpenWeatherMap API, with an AI-powered floating chat assistant.
 
 ## Features
 
-- Live weather search for any city
-- Hero card with temperature, condition, high/low, feels like, wind, and humidity
-- Daylight progress bar with sunrise/sunset times and total daylight duration
-- Detail grid: wind speed & direction, wind gust, humidity, pressure, visibility, feels like, cloud cover
-- °C / °F unit toggle
+- Live weather search with city autocomplete
+- Hero card: temperature, condition, high/low, feels like, wind, humidity
+- Daylight progress bar with sunrise/sunset times
+- Conditions grid: wind speed & direction, wind gust, humidity, pressure, visibility, feels like, cloud cover, rainfall
+- Floating AI chat assistant — auto-generates a weather summary, activity recommendations, and best outdoor time; supports follow-up questions (e.g. "Can I go for a run?")
+- °C / °F unit toggle with automatic re-fetch
 - Recent searches (last 6)
 - Popular city shortcuts on the empty state
 - Loading skeleton while fetching
 - Sticky navbar and footer
-- Fully responsive layout
+- Fully responsive layout (mobile full-screen chat, desktop floating panel)
 
 ## Tech Stack
 
@@ -58,7 +59,8 @@ src/
 │   ├── ui/                  # shadcn/ui primitives
 │   ├── Navbar.tsx           # Sticky nav with search and unit toggle
 │   ├── HeroWeather.tsx      # Main weather card
-│   ├── WeatherDetails.tsx   # Daylight bar + stat grid
+│   ├── WeatherDetails.tsx   # Daylight bar + conditions grid
+│   ├── WeatherChat.tsx      # Floating AI chat assistant
 │   ├── RecentSearches.tsx   # Recent search chips
 │   ├── EmptyState.tsx       # Welcome screen with popular cities
 │   ├── LoadingSkeleton.tsx  # Skeleton loader
