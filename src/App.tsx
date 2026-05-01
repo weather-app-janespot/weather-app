@@ -43,6 +43,7 @@ export default function App() {
   const [showCompare, setShowCompare] = useState(false)
   const [authLoading, setAuthLoading] = useState(true)
   const [memorySummary, setMemorySummary] = useState<string | null>(null)
+  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null) // metres
   const lastCityRef = useRef<string | null>(null)
 
   const profile = resolveProfile(user)
@@ -66,6 +67,7 @@ export default function App() {
   const fetchWeather = useCallback(async (city: string) => {
     setLoading(true)
     setError(null)
+    setLocationAccuracy(null)
     try {
       const response = await axios.get(`${API_URL}/weather`, {
         params: { city, units: unit },
@@ -94,6 +96,29 @@ export default function App() {
       setLoading(false)
     }
   }, [unit])
+
+  const fetchByCoords = useCallback((lat: number, lon: number, accuracy: number) => {
+    setLoading(true)
+    setError(null)
+    setLocationAccuracy(accuracy)
+    axios.get(`${API_URL}/weather`, { params: { lat, lon, units: unit } })
+      .then((response) => {
+        setWeather(response.data)
+        addRecent(response.data.name)
+        lastCityRef.current = response.data.name
+        recordSearch(API_URL, response.data, unit, !!user).then(() =>
+          getMemorySummary(API_URL, !!user).then(setMemorySummary)
+        )
+        const t = getWeatherTheme(response.data.weather[0].id, response.data.sys.sunrise, response.data.sys.sunset)
+        applyWeatherTheme(t)
+        setTheme(t)
+      })
+      .catch((err: any) => {
+        setError(err.response?.data?.error || "Could not fetch weather for your location.")
+        setWeather(null)
+      })
+      .finally(() => setLoading(false))
+  }, [unit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleUnit = () => setUnit((p) => (p === "metric" ? "imperial" : "metric"))
 
@@ -148,7 +173,7 @@ export default function App() {
       className="min-h-screen flex flex-col transition-all duration-1000"
       style={{ background: theme?.gradient ?? "linear-gradient(to bottom, #0a1628, #0f2040, #162850)" }}
     >
-      <Navbar onSearch={fetchWeather} loading={loading} unit={unit} onToggleUnit={toggleUnit}>
+      <Navbar onSearch={fetchWeather} onLocate={fetchByCoords} loading={loading} unit={unit} onToggleUnit={toggleUnit}>
         {/* Compare button */}
         <button
           onClick={() => setShowCompare(true)}
@@ -198,7 +223,7 @@ export default function App() {
 
         {!loading && weather && (
           <div className="space-y-6 animate-fade-in">
-            <HeroWeather weather={weather} unit={unit} apiUrl={API_URL} />
+            <HeroWeather weather={weather} unit={unit} apiUrl={API_URL} locationAccuracy={locationAccuracy} />
             <WeatherAlerts weather={weather} unit={unit} />
             <ComfortScore weather={weather} unit={unit} apiUrl={API_URL} />
             <WeatherDetails weather={weather} unit={unit} />

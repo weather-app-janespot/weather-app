@@ -9,13 +9,14 @@ interface HeroWeatherProps {
   weather: WeatherData
   unit: "metric" | "imperial"
   apiUrl: string
+  locationAccuracy?: number | null  // metres, null = searched by name
 }
 
 // Builds the OpenWeatherMap icon URL for a given icon code.
 // @4x gives a high-resolution 100×100px PNG.
 const getIconUrl = (icon: string) => `https://openweathermap.org/img/wn/${icon}@4x.png`
 
-export function HeroWeather({ weather, unit, apiUrl }: HeroWeatherProps) {
+export function HeroWeather({ weather, unit, apiUrl, locationAccuracy }: HeroWeatherProps) {
   const tempUnit = unit === "metric" ? "C" : "F"
 
   // Format the current date and time for display in the card header
@@ -52,6 +53,20 @@ export function HeroWeather({ weather, unit, apiUrl }: HeroWeatherProps) {
                 {Math.abs(weather.coord.lat).toFixed(2)}°{weather.coord.lat >= 0 ? "N" : "S"},{" "}
                 {Math.abs(weather.coord.lon).toFixed(2)}°{weather.coord.lon >= 0 ? "E" : "W"}
               </p>
+              {/* Location accuracy indicator — only shown when using GPS */}
+              {locationAccuracy != null && (
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className={`h-1.5 w-1.5 rounded-full ${
+                    locationAccuracy <= 100 ? "bg-emerald-400" :
+                    locationAccuracy <= 500 ? "bg-amber-400" : "bg-red-400"
+                  }`} />
+                  <span className="text-[11px] text-muted-foreground">
+                    GPS · {locationAccuracy < 1000
+                      ? `±${Math.round(locationAccuracy)}m`
+                      : `±${(locationAccuracy / 1000).toFixed(1)}km`} accuracy
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Large temperature display */}

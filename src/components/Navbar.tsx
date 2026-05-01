@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { Search, MapPin, CloudSun } from "lucide-react"
+import { Search, MapPin, CloudSun, LocateFixed, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -7,6 +7,7 @@ import axios from "axios"
 
 interface NavbarProps {
   onSearch: (city: string) => void
+  onLocate: (lat: number, lon: number, accuracy: number) => void
   loading: boolean
   unit: "metric" | "imperial"
   onToggleUnit: () => void
@@ -28,12 +29,13 @@ const MIN_QUERY_LENGTH = 2
 // Debounce delay in ms — avoids hammering the server on every keystroke
 const DEBOUNCE_MS = 250
 
-export function Navbar({ onSearch, loading, unit, onToggleUnit, children }: NavbarProps) {
+export function Navbar({ onSearch, onLocate, loading, unit, onToggleUnit, children }: NavbarProps) {
   const [city, setCity] = useState("")
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
-  // Tracks which suggestion is highlighted via keyboard navigation (-1 = none)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [locating, setLocating] = useState(false)
+  const [locateError, setLocateError] = useState<string | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -84,6 +86,26 @@ export function Navbar({ onSearch, loading, unit, onToggleUnit, children }: Navb
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
+
+  const handleLocate = () => {
+    if (!navigator.geolocation) {
+      setLocateError("Geolocation not supported")
+      return
+    }
+    setLocating(true)
+    setLocateError(null)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false)
+        onLocate(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy)
+      },
+      () => {
+        setLocating(false)
+        setLocateError("Location access denied")
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    )
+  }
 
   const handleSearch = (value?: string) => {
     const query = (value ?? city).trim()
@@ -201,13 +223,27 @@ export function Navbar({ onSearch, loading, unit, onToggleUnit, children }: Navb
             )}
           </div>
 
-          {/* Search button — shows spinner while weather fetch is in-flight */}
+          {/* Search button */}
           <Button size="icon" onClick={() => handleSearch()} disabled={loading || !city.trim()} aria-label="Search">
             {loading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-foreground" />
             ) : (
               <Search className="h-4 w-4" />
             )}
+          </Button>
+          {/* Locate button */}
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={handleLocate}
+            disabled={locating || loading}
+            aria-label="Use my location"
+            title={locateError ?? "Use my location"}
+          >
+            {locating
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <LocateFixed className={`h-4 w-4 ${locateError ? "text-red-400" : ""}`} />
+            }
           </Button>
         </div>
 
