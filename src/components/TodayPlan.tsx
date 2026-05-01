@@ -12,6 +12,7 @@ interface TodayPlanProps {
   unit: "metric" | "imperial"
   apiUrl: string
   profile: UserProfile
+  memorySummary?: string | null
 }
 
 interface TimeWindow {
@@ -46,7 +47,7 @@ const qualityDot: Record<string, string> = {
   poor: "bg-red-400",
 }
 
-export function TodayPlan({ weather, unit, apiUrl, profile }: TodayPlanProps) {
+export function TodayPlan({ weather, unit, apiUrl, profile, memorySummary }: TodayPlanProps) {
   const [plan, setPlan] = useState<Plan | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +56,7 @@ export function TodayPlan({ weather, unit, apiUrl, profile }: TodayPlanProps) {
     setLoading(true)
     setError(null)
     try {
-      const preferences = profileToPromptString(profile) || undefined
+      const preferences = [profileToPromptString(profile), memorySummary].filter(Boolean).join(" ") || undefined
       const res = await axios.post(`${apiUrl}/today`, { weather, unit, preferences })
       setPlan(res.data)
     } catch {

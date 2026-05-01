@@ -19,6 +19,7 @@ import { ComparePage } from "@/pages/ComparePage"
 import { getWeatherTheme, applyWeatherTheme, type WeatherTheme } from "@/lib/weatherTheme"
 import { fetchCurrentUser, type AuthUser } from "@/lib/auth"
 import { loadProfile, profileToPromptString, type UserProfile } from "@/types/profile"
+import { recordSearch, getMemorySummary } from "@/lib/memory"
 import type { WeatherData } from "@/types/weather"
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
@@ -41,6 +42,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false)
   const [showCompare, setShowCompare] = useState(false)
   const [authLoading, setAuthLoading] = useState(true)
+  const [memorySummary, setMemorySummary] = useState<string | null>(null)
   const lastCityRef = useRef<string | null>(null)
 
   const profile = resolveProfile(user)
@@ -50,6 +52,7 @@ export default function App() {
     fetchCurrentUser(API_URL).then((u) => {
       setUser(u)
       setAuthLoading(false)
+      getMemorySummary(API_URL, !!u).then(setMemorySummary)
     })
   }, [])
 
@@ -70,6 +73,12 @@ export default function App() {
       setWeather(response.data)
       addRecent(city)
       lastCityRef.current = city
+
+      // Record search in memory (fire-and-forget)
+      recordSearch(API_URL, response.data, unit, !!user).then(() => {
+        // Refresh memory summary after recording
+        getMemorySummary(API_URL, !!user).then(setMemorySummary)
+      })
       const t = getWeatherTheme(
         response.data.weather[0].id,
         response.data.sys.sunrise,
@@ -92,7 +101,10 @@ export default function App() {
     if (lastCityRef.current) fetchWeather(lastCityRef.current)
   }, [unit]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const profileStr = profileToPromptString(profile)
+  const profileStr = [
+    profileToPromptString(profile),
+    memorySummary,
+  ].filter(Boolean).join(" ")
   const hasProfile = profile.activities.length > 0 ||
     profile.heatSensitivity !== "normal" ||
     profile.coldSensitivity !== "normal"
@@ -191,8 +203,8 @@ export default function App() {
             <ComfortScore weather={weather} unit={unit} apiUrl={API_URL} />
             <WeatherDetails weather={weather} unit={unit} />
             <WeatherTimeline weather={weather} unit={unit} apiUrl={API_URL} />
-            <TodayPlan weather={weather} unit={unit} apiUrl={API_URL} profile={profile} />
-            <ActivitySuggestions weather={weather} unit={unit} apiUrl={API_URL} profile={profile} />
+            <TodayPlan weather={weather} unit={unit} apiUrl={API_URL} profile={profile} memorySummary={memorySummary} />
+            <ActivitySuggestions weather={weather} unit={unit} apiUrl={API_URL} profile={profile} memorySummary={memorySummary} />
           </div>
         )}
 

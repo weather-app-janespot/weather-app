@@ -11,6 +11,7 @@ interface ActivitySuggestionsProps {
   unit: "metric" | "imperial"
   apiUrl: string
   profile: UserProfile
+  memorySummary?: string | null
 }
 
 interface Activity {
@@ -55,7 +56,7 @@ function ScoreRing({ score }: { score: number }) {
 const rankColors = ["text-yellow-400", "text-slate-300", "text-amber-600"]
 const rankIcons = ["🥇", "🥈", "🥉"]
 
-export function ActivitySuggestions({ weather, unit, apiUrl, profile }: ActivitySuggestionsProps) {
+export function ActivitySuggestions({ weather, unit, apiUrl, profile, memorySummary }: ActivitySuggestionsProps) {
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -64,7 +65,7 @@ export function ActivitySuggestions({ weather, unit, apiUrl, profile }: Activity
     setLoading(true)
     setError(null)
     try {
-      const preferences = profileToPromptString(profile) || undefined
+      const preferences = [profileToPromptString(profile), memorySummary].filter(Boolean).join(" ") || undefined
       const res = await axios.post(`${apiUrl}/activities`, { weather, unit, preferences })
       setActivities(res.data.activities)
     } catch {
