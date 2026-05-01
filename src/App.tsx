@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
 import { WeatherChat } from "@/components/WeatherChat"
 import { TodayPlan } from "@/components/TodayPlan"
+import { ActivitySuggestions } from "@/components/ActivitySuggestions"
 import { WeatherTimeline } from "@/components/WeatherTimeline"
 import { WeatherAlerts } from "@/components/WeatherAlerts"
 import { ProfilePage } from "@/pages/ProfilePage"
@@ -189,6 +190,7 @@ export default function App() {
             <WeatherDetails weather={weather} unit={unit} />
             <WeatherTimeline weather={weather} unit={unit} apiUrl={API_URL} />
             <TodayPlan weather={weather} unit={unit} apiUrl={API_URL} profile={profile} />
+            <ActivitySuggestions weather={weather} unit={unit} apiUrl={API_URL} profile={profile} />
           </div>
         )}
 
