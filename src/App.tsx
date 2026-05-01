@@ -13,6 +13,7 @@ import { TodayPlan } from "@/components/TodayPlan"
 import { ActivitySuggestions } from "@/components/ActivitySuggestions"
 import { WeatherTimeline } from "@/components/WeatherTimeline"
 import { WeatherAlerts } from "@/components/WeatherAlerts"
+import { ComfortScore } from "@/components/ComfortScore"
 import { ProfilePage } from "@/pages/ProfilePage"
 import { ComparePage } from "@/pages/ComparePage"
 import { getWeatherTheme, applyWeatherTheme, type WeatherTheme } from "@/lib/weatherTheme"
@@ -187,6 +188,7 @@ export default function App() {
           <div className="space-y-6 animate-fade-in">
             <HeroWeather weather={weather} unit={unit} />
             <WeatherAlerts weather={weather} unit={unit} />
+            <ComfortScore weather={weather} unit={unit} apiUrl={API_URL} />
             <WeatherDetails weather={weather} unit={unit} />
             <WeatherTimeline weather={weather} unit={unit} apiUrl={API_URL} />
             <TodayPlan weather={weather} unit={unit} apiUrl={API_URL} profile={profile} />
