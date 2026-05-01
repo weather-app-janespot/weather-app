@@ -2,18 +2,20 @@ import { MapPin, ArrowUp, ArrowDown, Droplets, Wind } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { ShareCard } from "@/components/ShareCard"
 import type { WeatherData } from "@/types/weather"
 
 interface HeroWeatherProps {
   weather: WeatherData
   unit: "metric" | "imperial"
+  apiUrl: string
 }
 
 // Builds the OpenWeatherMap icon URL for a given icon code.
 // @4x gives a high-resolution 100×100px PNG.
 const getIconUrl = (icon: string) => `https://openweathermap.org/img/wn/${icon}@4x.png`
 
-export function HeroWeather({ weather, unit }: HeroWeatherProps) {
+export function HeroWeather({ weather, unit, apiUrl }: HeroWeatherProps) {
   const tempUnit = unit === "metric" ? "C" : "F"
 
   // Format the current date and time for display in the card header
@@ -28,10 +30,12 @@ export function HeroWeather({ weather, unit }: HeroWeatherProps) {
 
   return (
     <Card className="overflow-hidden border shadow-lg shadow-black/30">
-      <CardContent className="p-0">
-        {/* Two-column layout on md+: info on the left, weather icon on the right */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-0">
-
+      <CardContent className="p-0 relative">
+        {/* Share button — visible only on small screens, top-right corner */}
+        <div className="absolute top-4 right-4 z-10 md:hidden">
+          <ShareCard weather={weather} unit={unit} apiUrl={apiUrl} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-0 relative">
           {/* Left column: location, temperature, condition, quick stats */}
           <div className="p-6 sm:p-8 space-y-5">
 
@@ -40,7 +44,6 @@ export function HeroWeather({ weather, unit }: HeroWeatherProps) {
               <div className="flex items-center gap-2 flex-wrap">
                 <MapPin className="h-4 w-4 text-primary" />
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{weather.name}</h1>
-                {/* Country code badge */}
                 <Badge variant="secondary" className="text-[10px]">{weather.sys.country}</Badge>
               </div>
               <p className="text-sm text-muted-foreground">{dateStr} &middot; {timeStr}</p>
@@ -95,14 +98,14 @@ export function HeroWeather({ weather, unit }: HeroWeatherProps) {
             </div>
           </div>
 
-          {/* Right column: large weather icon — hidden on small screens */}
-          <div className="hidden md:flex flex-col items-center justify-center px-8">
+          {/* Right column: share on top, icon below */}
+          <div className="hidden md:flex flex-col items-center justify-center px-8 gap-2">
+            <ShareCard weather={weather} unit={unit} apiUrl={apiUrl} />
             <img
               src={getIconUrl(weather.weather[0].icon)}
               alt={weather.weather[0].description}
               className="w-44 h-44 drop-shadow-xl"
             />
-            {/* Condition group label below the icon (e.g. "Rain", "Clear") */}
             <span className="text-sm font-medium text-muted-foreground capitalize -mt-2">
               {weather.weather[0].main}
             </span>

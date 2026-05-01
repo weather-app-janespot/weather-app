@@ -186,7 +186,7 @@ export default function App() {
 
         {!loading && weather && (
           <div className="space-y-6 animate-fade-in">
-            <HeroWeather weather={weather} unit={unit} />
+            <HeroWeather weather={weather} unit={unit} apiUrl={API_URL} />
             <WeatherAlerts weather={weather} unit={unit} />
             <ComfortScore weather={weather} unit={unit} apiUrl={API_URL} />
             <WeatherDetails weather={weather} unit={unit} />

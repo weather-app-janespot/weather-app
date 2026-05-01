@@ -59,7 +59,6 @@ export function computeScores(
 ): ComfortResult {
   const { main, wind, visibility, weather: conditions } = weather
   const feelsC = tempC(main.feels_like, unit)
-  const tempCelsius = tempC(main.temp, unit)
   const windMs = unit === "imperial" ? wind.speed * 0.44704 : wind.speed
   const conditionId = conditions[0].id
   const precip = precipChance(conditionId)
