@@ -233,8 +233,8 @@ export function Navbar({ onSearch, loading, unit, onToggleUnit, children }: Navb
             </button>
           </div>
         </div>
-        {/* Extra items (e.g. profile button) injected from parent */}
-        {children && <div className="ml-2">{children}</div>}
+        {/* Extra items (e.g. compare + profile buttons) injected from parent */}
+        {children && <div className="ml-2 flex items-center gap-2">{children}</div>}
       </div>
     </header>
   )

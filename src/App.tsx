@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react"
 import axios from "axios"
-import { User, LogIn } from "lucide-react"
+import { User, LogIn, GitCompare } from "lucide-react"
 import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
 import { HeroWeather } from "@/components/HeroWeather"
@@ -13,6 +13,7 @@ import { TodayPlan } from "@/components/TodayPlan"
 import { WeatherTimeline } from "@/components/WeatherTimeline"
 import { WeatherAlerts } from "@/components/WeatherAlerts"
 import { ProfilePage } from "@/pages/ProfilePage"
+import { ComparePage } from "@/pages/ComparePage"
 import { getWeatherTheme, applyWeatherTheme, type WeatherTheme } from "@/lib/weatherTheme"
 import { fetchCurrentUser, type AuthUser } from "@/lib/auth"
 import { loadProfile, profileToPromptString, type UserProfile } from "@/types/profile"
@@ -36,6 +37,7 @@ export default function App() {
   const [theme, setTheme] = useState<WeatherTheme | null>(null)
   const [user, setUser] = useState<AuthUser | null>(null)
   const [showProfile, setShowProfile] = useState(false)
+  const [showCompare, setShowCompare] = useState(false)
   const [authLoading, setAuthLoading] = useState(true)
   const lastCityRef = useRef<string | null>(null)
 
@@ -93,6 +95,23 @@ export default function App() {
     profile.heatSensitivity !== "normal" ||
     profile.coldSensitivity !== "normal"
 
+  // Compare page view
+  if (showCompare) {
+    return (
+      <div
+        className="min-h-screen flex flex-col transition-all duration-1000"
+        style={{ background: theme?.gradient ?? "linear-gradient(to bottom, #0a1628, #0f2040, #162850)" }}
+      >
+        <ComparePage
+          apiUrl={API_URL}
+          unit={unit}
+          onBack={() => setShowCompare(false)}
+          initialCity={weather?.name}
+        />
+      </div>
+    )
+  }
+
   // Profile page view
   if (showProfile) {
     return (
@@ -116,6 +135,15 @@ export default function App() {
       style={{ background: theme?.gradient ?? "linear-gradient(to bottom, #0a1628, #0f2040, #162850)" }}
     >
       <Navbar onSearch={fetchWeather} loading={loading} unit={unit} onToggleUnit={toggleUnit}>
+        {/* Compare button */}
+        <button
+          onClick={() => setShowCompare(true)}
+          aria-label="Compare cities"
+          className="flex items-center gap-1.5 px-3 h-8 rounded-full border border-white/15 bg-white/5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-white/25 transition-colors"
+        >
+          <GitCompare className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Compare</span>
+        </button>
         {!authLoading && (
           <button
             onClick={() => setShowProfile(true)}
