@@ -4,11 +4,14 @@ import { Sparkles, Send, Loader2, X, MessageCircle, Bot, User } from "lucide-rea
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { WeatherData } from "@/types/weather"
+import type { UserProfile } from "@/types/profile"
 
 interface WeatherChatProps {
   weather: WeatherData
   unit: "metric" | "imperial"
   apiUrl: string
+  profile: UserProfile
+  profileStr: string
 }
 
 interface Message {
@@ -21,7 +24,7 @@ interface Message {
 let msgId = 0
 const nextId = () => ++msgId
 
-export function WeatherChat({ weather, unit, apiUrl }: WeatherChatProps) {
+export function WeatherChat({ weather, unit, apiUrl, profileStr }: WeatherChatProps) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -62,11 +65,14 @@ export function WeatherChat({ weather, unit, apiUrl }: WeatherChatProps) {
   const fetchSummary = async () => {
     const placeholderId = addMessage({ role: "assistant", text: "", loading: true })
     try {
-      const res = await axios.post(`${apiUrl}/ai`, { weather, unit })
-      const { summary, recommendation, bestTime } = res.data
+      const preferences = profileStr || undefined
+      const res = await axios.post(`${apiUrl}/today`, { weather, unit, preferences })
+      const { overview, activities, tips } = res.data
+      const suitable = activities.filter((a: { suitable: boolean }) => a.suitable).map((a: { icon: string; name: string }) => `${a.icon} ${a.name}`).join(", ")
+      const notSuitable = activities.filter((a: { suitable: boolean }) => !a.suitable).map((a: { icon: string; name: string }) => `${a.icon} ${a.name}`).join(", ")
       updateMessage(
         placeholderId,
-        `${summary}\n\n**Recommendation:** ${recommendation}\n\n**Best time outside:** ${bestTime}`
+        `${overview}\n\n**Good for:** ${suitable || "nothing outdoors today"}\n**Avoid:** ${notSuitable || "nothing"}\n\n**Tips:** ${tips[0] ?? ""}\n\nAsk me anything about today's weather!`
       )
     } catch {
       updateMessage(placeholderId, "Sorry, I couldn't load the weather summary. Try asking me something!")
@@ -82,7 +88,8 @@ export function WeatherChat({ weather, unit, apiUrl }: WeatherChatProps) {
     const placeholderId = addMessage({ role: "assistant", text: "", loading: true })
 
     try {
-      const res = await axios.post(`${apiUrl}/ai`, { weather, unit, question: text })
+      const preferences = profileStr || undefined
+      const res = await axios.post(`${apiUrl}/ai`, { weather, unit, question: text, preferences })
       updateMessage(placeholderId, res.data.answer)
     } catch {
       updateMessage(placeholderId, "Sorry, I couldn't get an answer. Please try again.")

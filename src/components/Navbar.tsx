@@ -10,6 +10,7 @@ interface NavbarProps {
   loading: boolean
   unit: "metric" | "imperial"
   onToggleUnit: () => void
+  children?: React.ReactNode
 }
 
 interface CitySuggestion {
@@ -27,7 +28,7 @@ const MIN_QUERY_LENGTH = 2
 // Debounce delay in ms — avoids hammering the server on every keystroke
 const DEBOUNCE_MS = 250
 
-export function Navbar({ onSearch, loading, unit, onToggleUnit }: NavbarProps) {
+export function Navbar({ onSearch, loading, unit, onToggleUnit, children }: NavbarProps) {
   const [city, setCity] = useState("")
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
@@ -232,6 +233,8 @@ export function Navbar({ onSearch, loading, unit, onToggleUnit }: NavbarProps) {
             </button>
           </div>
         </div>
+        {/* Extra items (e.g. profile button) injected from parent */}
+        {children && <div className="ml-2">{children}</div>}
       </div>
     </header>
   )
