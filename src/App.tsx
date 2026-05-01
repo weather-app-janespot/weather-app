@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
 import { WeatherChat } from "@/components/WeatherChat"
 import { TodayPlan } from "@/components/TodayPlan"
+import { WeatherTimeline } from "@/components/WeatherTimeline"
 import { ProfilePage } from "@/pages/ProfilePage"
 import { getWeatherTheme, applyWeatherTheme, type WeatherTheme } from "@/lib/weatherTheme"
 import { fetchCurrentUser, type AuthUser } from "@/lib/auth"
@@ -156,6 +157,7 @@ export default function App() {
           <div className="space-y-6 animate-fade-in">
             <HeroWeather weather={weather} unit={unit} />
             <WeatherDetails weather={weather} unit={unit} />
+            <WeatherTimeline weather={weather} unit={unit} apiUrl={API_URL} />
             <TodayPlan weather={weather} unit={unit} apiUrl={API_URL} profile={profile} />
           </div>
         )}

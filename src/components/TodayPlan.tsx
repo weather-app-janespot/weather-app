@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import axios from "axios"
-import { Loader2, RefreshCw, CalendarDays, CheckCircle2, XCircle, Clock, Lightbulb } from "lucide-react"
+import { RefreshCw, CalendarDays, CheckCircle2, XCircle, Clock, Lightbulb } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { WeatherData } from "@/types/weather"
 import { profileToPromptString, type UserProfile } from "@/types/profile"
 
@@ -47,7 +48,7 @@ const qualityDot: Record<string, string> = {
 
 export function TodayPlan({ weather, unit, apiUrl, profile }: TodayPlanProps) {
   const [plan, setPlan] = useState<Plan | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchPlan = async () => {
@@ -64,6 +65,9 @@ export function TodayPlan({ weather, unit, apiUrl, profile }: TodayPlanProps) {
     }
   }
 
+  // Auto-generate on mount
+  useEffect(() => { fetchPlan() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Card className="border shadow-lg">
       <CardHeader className="pb-3">
@@ -73,20 +77,10 @@ export function TodayPlan({ weather, unit, apiUrl, profile }: TodayPlanProps) {
             What should I do today?
           </CardTitle>
           <div className="flex items-center gap-2">
-            {plan && (
-              <Button size="sm" variant="ghost" onClick={fetchPlan} disabled={loading} className="h-7 px-2 text-xs">
-                <RefreshCw className={`h-3.5 w-3.5 mr-1 ${loading ? "animate-spin" : ""}`} />
-                Refresh
-              </Button>
-            )}
-            {!plan && (
-              <Button size="sm" onClick={fetchPlan} disabled={loading} className="h-8">
-                {loading
-                  ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />Planning...</>
-                  : <><CalendarDays className="h-3.5 w-3.5 mr-1.5" />Plan my day</>
-                }
-              </Button>
-            )}
+            <Button size="sm" variant="ghost" onClick={fetchPlan} disabled={loading} className="h-7 px-2 text-xs">
+              <RefreshCw className={`h-3.5 w-3.5 mr-1 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
           </div>
         </div>
         {/* Show active profile summary if set */}
@@ -105,9 +99,30 @@ export function TodayPlan({ weather, unit, apiUrl, profile }: TodayPlanProps) {
         {error && <p className="text-sm text-red-400">{error}</p>}
 
         {loading && !plan && (
-          <div className="flex items-center justify-center py-8 gap-3 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span className="text-sm">Analysing your day...</span>
+          <div className="space-y-5">
+            {/* Overview skeleton */}
+            <div className="space-y-2">
+              <Skeleton className="h-3.5 w-full" />
+              <Skeleton className="h-3.5 w-4/5" />
+            </div>
+            {/* Time windows skeleton */}
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-32" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 rounded-lg" />
+                ))}
+              </div>
+            </div>
+            {/* Activities skeleton */}
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-28" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-20 rounded-lg" />
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
